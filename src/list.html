@@ -1,0 +1,16 @@
+<html>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>list</title>
+  <body>
+    <form action="./confirm" method="get">
+    {% for title, atomLink, link in titleAndAtomLinkAndLinkSets %}
+      <input type="radio" name="article" value="{{ atomLink }}">
+      <a href="{{ link }}">{{ title }}</a><br>
+    {% endfor %}
+      <label>年月日：<input type="date" name="date" min="{{ YMD }}" value="{{ YMD }}"></label>
+      <label>時刻：<input type="time" name="time" value="{{ HM }}" step={{ 600 }}></label>
+      <br>
+      <input type="submit">
+    </form>
+  </body>
+</html>

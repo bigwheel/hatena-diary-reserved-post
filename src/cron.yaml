@@ -1,0 +1,5 @@
+cron:
+- description: article post job
+  url: /post
+  schedule: every 10 minutes synchronized
+  timezone: Asia/Tokyo
