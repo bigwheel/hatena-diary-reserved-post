@@ -41,7 +41,7 @@ class MainPage(webapp.RequestHandler):
                                                "read_private,write_private")
 
         if mode == "": # トップページ
-            path = os.path.join(os.path.dirname(__file__), 'index.html')
+            path = os.path.join(os.path.dirname(__file__), 'require_hatena_oauth.html')
             return self.response.out.write(template.render(path, {}))
         elif mode == "login":
             return self.redirect(hatenaOauthClient.get_authorization_url())
