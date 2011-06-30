@@ -26,6 +26,10 @@ class ReservedPost(db.Model):
     date = db.DateTimeProperty()
     url = db.StringProperty()
 
+def render_template(response, template_filename, template_dict, debug=False):
+    path = os.path.join(os.path.dirname(__file__), "templates/" + template_filename)
+    response.out.write(template.render(path, template_dict, debug))
+
 class MainPage(webapp.RequestHandler):
     def get(self, mode=""):
         google_user_info = users.get_current_user()
@@ -41,8 +45,7 @@ class MainPage(webapp.RequestHandler):
                                                "read_private,write_private")
 
         if mode == "": # トップページ
-            path = os.path.join(os.path.dirname(__file__), 'require_hatena_oauth.html')
-            return self.response.out.write(template.render(path, {}))
+            render_template(self.response, "require_hatena_oauth.html", {})
         elif mode == "login":
             return self.redirect(hatenaOauthClient.get_authorization_url())
         elif mode == "verify":
@@ -105,8 +108,7 @@ class MainPage(webapp.RequestHandler):
                 
                 template_values = {"titleAndAtomLinkAndLinkSets":titleAndAtomLinkAndLinkSets,
                                    "YMD":YMD, "HM":HM}
-                path = os.path.join(os.path.dirname(__file__), 'list.html')
-                return self.response.out.write(template.render(path, template_values))
+                render_template(self.response, "list_draft_articles.html", template_values)
         elif mode == "confirm":
             if not self.request.get("article"):
                 return self.redirect("%s/list" % self.request.host_url)
