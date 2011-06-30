@@ -35,7 +35,9 @@ class MainPage(webapp.RequestHandler):
         google_user_info = users.get_current_user()
         
         if not google_user_info:
-            return self.redirect(users.create_login_url(self.request.uri))
+            render_template(self.response, "require_google_login.html",
+                            {"login_url":users.create_login_url(self.request.uri)})
+            return
         # TODO: 起動時に必ず出るエラーは、ここのreturn文が原因。文章を分解するべき？
 
         verify_url = "%s/verify" % self.request.host_url
@@ -45,9 +47,8 @@ class MainPage(webapp.RequestHandler):
                                                "read_private,write_private")
 
         if mode == "": # トップページ
-            render_template(self.response, "require_hatena_oauth.html", {})
-        elif mode == "login":
-            return self.redirect(hatenaOauthClient.get_authorization_url())
+            render_template(self.response, "require_hatena_oauth.html",
+                            {"auth_url":hatenaOauthClient.get_authorization_url()})
         elif mode == "verify":
             auth_token = self.request.get("oauth_token")
             auth_verifier = self.request.get("oauth_verifier")
