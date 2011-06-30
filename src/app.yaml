@@ -4,10 +4,6 @@ runtime: python
 api_version: 1
 
 handlers:
-- url: /cleanup_sessions
-  script: cleanup_sessions.py
-  login: admin
-  
 - url: /post
   script: main.py
   login: admin
