@@ -32,6 +32,7 @@ class MainPage(webapp.RequestHandler):
         
         if not google_user_info:
             return self.redirect(users.create_login_url(self.request.uri))
+        # TODO: 起動時に必ず出るエラーは、ここのreturn文が原因。文章を分解するべき？
 
         verify_url = "%s/verify" % self.request.host_url
         
