@@ -3,3 +3,6 @@ cron:
   url: /post
   schedule: every 10 minutes synchronized
   timezone: Asia/Tokyo
+- description: daily session cleanup
+  url: /cleanup_sessions
+  schedule: every 24 hours
