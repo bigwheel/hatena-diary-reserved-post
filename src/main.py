@@ -41,10 +41,8 @@ class MainPage(webapp.RequestHandler):
                                                "read_private,write_private")
 
         if mode == "": # トップページ
-            self.response.out.write(u"""<html>
-<head><meta http-equiv="refresh" content="10;url=/login"></head>
-<body><a href='/login'>Login Hatena OAuth(10秒後に自動的に移動します)</a></body>
-</html>""")
+            path = os.path.join(os.path.dirname(__file__), 'index.html')
+            return self.response.out.write(template.render(path, {}))
         elif mode == "login":
             return self.redirect(hatenaOauthClient.get_authorization_url())
         elif mode == "verify":
