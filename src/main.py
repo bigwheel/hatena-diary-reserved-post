@@ -127,7 +127,8 @@ class MainPage(webapp.RequestHandler):
             return self.response.out.write("Store OK!")
         elif mode == "post":
             pastTask = ReservedPost.gql("WHERE date <= DATETIME('%s')" % 
-                                 datetime.datetime.now().strftime(u"%Y-%m-%d %H:%M:%S"))
+                                 (datetime.datetime.now() + datetime.timedelta(hours=9))
+                                 .strftime(u"%Y-%m-%d %H:%M:%S"))
             for reservedPost in pastTask:
                 userProperty = UserProperty.gql("WHERE g_username = :1",
                                                 reservedPost.g_username).get()
