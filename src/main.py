@@ -102,7 +102,7 @@ class MainPage(webapp.RequestHandler):
                 titleAndAtomLinkAndLinkSets = map((lambda tAALSet: (tAALSet[0], tAALSet[1],
                     re.sub("/atom/draft/", "/draft?epoch=", tAALSet[1]))), titleAndAtomLinkSets)
                 
-                now = datetime.datetime.now()
+                now = datetime.datetime.now() + datetime.timedelta(hours=9)
                 YMD = now.strftime(u"%Y-%m-%d")
                 H = now.strftime(u"%H:")
                 HM = H + ("%02d" % ((now.minute / 10) * 10))
