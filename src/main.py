@@ -32,9 +32,7 @@ def render_template(response, template_filename, template_dict, debug=False):
 
 class MainPage(webapp.RequestHandler):
     def get(self, mode=""):
-        google_user_info = users.get_current_user()
-        
-        if not google_user_info:
+        if not users.get_current_user():
             render_template(self.response, "require_google_login.html",
                             {"login_url":users.create_login_url(self.request.uri)})
             return
