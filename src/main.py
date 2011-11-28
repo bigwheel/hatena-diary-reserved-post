@@ -122,6 +122,7 @@ class MainPage(webapp.RequestHandler):
             reservedPost.url = self.request.get("article")
             reservedPost.put()
             
+            return render_template(self.response, "confirm.html", None)
             return self.response.out.write("Store OK!")
         elif mode == "post":
             pastTask = ReservedPost.gql("WHERE date <= DATETIME('%s')" % 
