@@ -123,23 +123,6 @@ class MainPage(webapp.RequestHandler):
             reservedPost.put()
             
             return render_template(self.response, "confirm.html", None)
-            return self.response.out.write("Store OK!")
-        elif mode == "post":
-            pastTask = ReservedPost.gql("WHERE date <= DATETIME('%s')" % 
-                                 (datetime.datetime.now() + datetime.timedelta(hours=9))
-                                 .strftime(u"%Y-%m-%d %H:%M:%S"))
-            for reservedPost in pastTask:
-                userProperty = UserProperty.gql("WHERE g_username = :1",
-                                                reservedPost.g_username).get()
-                result = hatenaOauthClient.make_request(url=reservedPost.url, token=userProperty.accessToken,
-                                             secret=userProperty.accessSecret, method=urlfetch.PUT,
-                                             headers={"X-HATENA-PUBLISH":"1"})
-                self.response.out.write(str(result.status_code) + "<br>")
-                self.response.out.write(str(reservedPost.url) + "<br>")
-                self.response.out.write(result.content)
-                reservedPost.delete()
-            
-            return
 
 application = webapp.WSGIApplication([('/(.*)', MainPage)], debug=True)
 

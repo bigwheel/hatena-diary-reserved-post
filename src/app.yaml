@@ -5,7 +5,7 @@ api_version: 1
 
 handlers:
 - url: /post
-  script: main.py
+  script: post.py
   login: admin
   
 - url: /.*
