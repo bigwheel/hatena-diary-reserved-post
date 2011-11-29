@@ -5,7 +5,6 @@ use_library('django', '1.2')
 import os
 import re
 import datetime
-import logging
 from google.appengine.api import users
 from google.appengine.api import urlfetch
 from google.appengine.ext import webapp
