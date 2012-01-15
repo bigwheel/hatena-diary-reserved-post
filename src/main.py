@@ -119,7 +119,13 @@ class MainPage(webapp.RequestHandler):
                 try:
                     titleAndAtomLinkAndLinkSets = self._palseDraftXml(result)
                 except:
-                    print result.content
+                    if result.content == "oauth_problem=token_revoked" or\
+                                    result.content == "oauth_problem=token_rejected":
+                        userProperty.delete()
+                        return render_template(self.response, "token_error.html",
+                                               {"message":result.content})
+                    return render_template(self.response, "error_happened.html",
+                                           {"message":result.content})
                 
                 reservedPostsForThisUser = ReservedPost.gql("WHERE g_username = :1",
                                                             users.get_current_user())
