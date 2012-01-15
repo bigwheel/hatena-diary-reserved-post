@@ -68,55 +68,56 @@ class MainPage(webapp.RequestHandler):
             userProperty.accessToken = user_info["token"]
             userProperty.accessSecret = user_info["secret"]
             userProperty.put()
+            return self.redirect(self.request.host_url)
         else: # recordCount == 1
             userProperty = userPropertys.get() # 一つあればそれを引用して(下で)上書き(する)
 
-        # この時点でgoogleアカウントに紐付されてることと、
-        # hatenaへのoauth認証が済んでいること(つまりuserPropertyに正しく入力されてること)が保証されてる
+            # この時点でgoogleアカウントに紐付されてることと、
+            # hatenaへのoauth認証が済んでいること(つまりuserPropertyに正しく入力されてること)が保証されてる
 
-        if mode == "": # トップページ
-            self.redirect("%s/list" % self.request.host_url)
-            return
-        elif mode == "list":
-            result = hatenaOauthClient.make_request(url="http://d.hatena.ne.jp/%s/atom/draft"
-                                % userProperty.h_username, token=userProperty.accessToken,
-                                secret=userProperty.accessSecret, method=urlfetch.GET)
-
-            titleAndAtomLinkAndLinkSets = self._palseDraftXml(result)
-            
-            reservedPostsForThisUser = ReservedPost.gql("WHERE g_username = :1",
-                                                        users.get_current_user())
-            
-            nonReservedArticles = []
-            reservedArticles = []
-            
-            for article in titleAndAtomLinkAndLinkSets:
-                for reservedPost in reservedPostsForThisUser:
-                    if article[1] == reservedPost.url:
-                        reservedArticles.append(article)
-                        break
-                else:
-                    nonReservedArticles.append(article)
-            
-            (YMD, HM) = self._getYMDandHM()
-            
-            template_values = {"titleAndAtomLinkAndLinkSets":reservedArticles,
-                               "YMD":YMD, "HM":HM}
-            render_template(self.response, "list_draft_articles.html", template_values)
-        elif mode == "confirm":
-            if not self.request.get("article"):
-                return self.redirect("%s/list" % self.request.host_url)
-            YMD = self.request.get("date")
-            HM = self.request.get("time")
-            from time import strptime
-            date = datetime.datetime(*strptime(YMD + HM, "%Y-%m-%d%H:%M")[0:5])
-            reservedPost = ReservedPost()
-            reservedPost.g_username = users.get_current_user()
-            reservedPost.date = date
-            reservedPost.url = self.request.get("article")
-            reservedPost.put()
-            
-            return render_template(self.response, "confirm.html", None)
+            if mode == "":
+                result = hatenaOauthClient.make_request(url="http://d.hatena.ne.jp/%s/atom/draft"
+                                    % userProperty.h_username, token=userProperty.accessToken,
+                                    secret=userProperty.accessSecret, method=urlfetch.GET)
+        
+                titleAndAtomLinkAndLinkSets = self._palseDraftXml(result)
+                
+                reservedPostsForThisUser = ReservedPost.gql("WHERE g_username = :1",
+                                                            users.get_current_user())
+                
+                nonReservedArticles = []
+                reservedArticles = []
+                
+                for article in titleAndAtomLinkAndLinkSets:
+                    for reservedPost in reservedPostsForThisUser:
+                        if article[1] == reservedPost.url:
+                            reservedArticles.append(article)
+                            break
+                    else:
+                        nonReservedArticles.append(article)
+                
+                (YMD, HM) = self._getYMDandHM()
+                
+                template_values = {"titleAndAtomLinkAndLinkSets":reservedArticles,
+                                   "YMD":YMD, "HM":HM}
+                return render_template(self.response, "list_draft_articles.html", template_values)
+            elif mode == "confirm":
+                if not self.request.get("article"):
+                    return self.redirect("%s/list" % self.request.host_url)
+                YMD = self.request.get("date")
+                HM = self.request.get("time")
+                from time import strptime
+                date = datetime.datetime(*strptime(YMD + HM, "%Y-%m-%d%H:%M")[0:5])
+                reservedPost = ReservedPost()
+                reservedPost.g_username = users.get_current_user()
+                reservedPost.date = date
+                reservedPost.url = self.request.get("article")
+                reservedPost.put()
+                
+                return render_template(self.response, "confirm.html", None)
+            else:
+                raise Exception, u"知らないモード(URL)です。"
+                
 
     def _getYMDandHM(self):
         now = datetime.datetime.now() + datetime.timedelta(hours=9, minutes=10)
