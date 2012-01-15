@@ -2,6 +2,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>list</title>
   <body>
+
   	予約されてない記事<br>
     <form action="./confirm" method="get">
     {% for title, atomLink, link in nonReservedArticles %}
@@ -15,8 +16,14 @@
     </form>
 
   	予約されている記事<br>
-    {% for title, atomLink, link in reservedArticles %}
-      <a href="{{ link }}">{{ title }}</a><br>
+    {% for title, atomLink, link, date in reservedArticles %}
+	  <form action="./delete" method="get">
+      	<a href="{{ link }}">{{ title }}</a>{{ date }}
+      	<input type="submit" name="article" value="この記事の予約を取り消す">
+      	<input type="hidden" name="article" value="{{ atomLink }}">
+      </form>
     {% endfor %}
+    </form>
+
   </body>
 </html>

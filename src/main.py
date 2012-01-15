@@ -91,7 +91,8 @@ class MainPage(webapp.RequestHandler):
                 for article in titleAndAtomLinkAndLinkSets:
                     for reservedPost in reservedPostsForThisUser:
                         if article[1] == reservedPost.url:
-                            reservedArticles.append(article)
+                            reservedArticles.append((article[0], article[1], article[2],
+                                                     reservedPost.date))
                             break
                     else:
                         nonReservedArticles.append(article)
