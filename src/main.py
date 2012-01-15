@@ -78,7 +78,9 @@ class MainPage(webapp.RequestHandler):
             if mode == "":
                 message = "" # とりあえずメッセージを空にしておく
                 typeOfAction = self.request.get("type_of_action")
-                if typeOfAction == "reserve":
+                if typeOfAction == "":
+                    pass
+                elif typeOfAction == "reserve":
                     reservedPosts = ReservedPost.gql("WHERE url = :1", self.request.get("article_url"))
                     if reservedPosts.count(1) != 0:
                         message = "その記事はすでに予約されています"
@@ -104,6 +106,11 @@ class MainPage(webapp.RequestHandler):
                     else: # reservedPostsNumber == 1
                         reservedPosts.get().delete()
                         message = "予約をキャンセルしました"
+                elif typeOfAction == "delete_token":
+                    userProperty.delete()
+                    return self.redirect(self.request.host_url)
+                else:
+                    raise Exception, "未知のtype_of_action get変数が指定されてます"
 
                 result = hatenaOauthClient.make_request(url="http://d.hatena.ne.jp/%s/atom/draft"
                                     % userProperty.h_username, token=userProperty.accessToken,

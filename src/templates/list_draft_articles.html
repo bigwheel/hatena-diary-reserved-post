@@ -31,7 +31,13 @@
 
 	<br>
 	<a href="https://www.hatena.ne.jp/{{ h_username }}/config/auth/provider">はてな内のOauth認証一覧画面</a>
-	<br>
-	このアプリケーションのOauth認証を削除・取り消すために使用してください
+	<br>このアプリケーションのOauth認証を削除・取り消すために使用してください<br>
+
+	<form action="./" method="get">
+	  <input type="submit" value="このウェブアプリケーションに登録された自分のoauth認証を削除する"><br>
+	  ただし、この方法は根本的にOauthトークンが削除されたことを証明できないので、
+	  同時に上のはてなのページからOauthを無効化してください。
+	  <input type="hidden" name="type_of_action" value="delete_token">
+	</form>
   </body>
 </html>
