@@ -109,7 +109,10 @@ class MainPage(webapp.RequestHandler):
                                     % userProperty.h_username, token=userProperty.accessToken,
                                     secret=userProperty.accessSecret, method=urlfetch.GET)
         
-                titleAndAtomLinkAndLinkSets = self._palseDraftXml(result)
+                try:
+                    titleAndAtomLinkAndLinkSets = self._palseDraftXml(result)
+                except:
+                    print result.content
                 
                 reservedPostsForThisUser = ReservedPost.gql("WHERE g_username = :1",
                                                             users.get_current_user())
