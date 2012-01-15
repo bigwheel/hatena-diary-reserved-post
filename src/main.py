@@ -45,7 +45,7 @@ class MainPage(webapp.RequestHandler):
 
         # 次にそのgoogleアカウントではてな日記のOauthがすでに認証されているか確認
         userPropertys = UserProperty.gql("WHERE g_username = :1", users.get_current_user())
-        recordCount = userPropertys.count(3) # たぶん2でいいはずだが、自信がないので3にしておく
+        recordCount = userPropertys.count(2)
         if recordCount > 1:
             raise Exception, u"同じgoogleアカウントに紐付されたレコードが2つ以上あります。"
             # TODO: これは当然ながら発生しうる。例えば複数のはてなアカウントを管理しているなど
@@ -76,24 +76,34 @@ class MainPage(webapp.RequestHandler):
             # hatenaへのoauth認証が済んでいること(つまりuserPropertyに正しく入力されてること)が保証されてる
 
             if mode == "":
-                message = ""
+                message = "" # とりあえずメッセージを空にしておく
                 typeOfAction = self.request.get("type_of_action")
                 if typeOfAction == "reserve":
-                    YMD = self.request.get("date")
-                    HM = self.request.get("time")
-                    from time import strptime
-                    date = datetime.datetime(*strptime(YMD + HM, "%Y-%m-%d%H:%M")[0:5])
-                    reservedPost = ReservedPost()
-                    reservedPost.g_username = users.get_current_user()
-                    reservedPost.date = date
-                    reservedPost.url = self.request.get("article_url")
-                    reservedPost.put()
-                    message = "予約を追加しました"
+                    reservedPosts = ReservedPost.gql("WHERE url = :1", self.request.get("article_url"))
+                    if reservedPosts.count(1) != 0:
+                        message = "その記事はすでに予約されています"
+                    else:
+                        YMD = self.request.get("date")
+                        HM = self.request.get("time")
+                        from time import strptime
+                        date = datetime.datetime(*strptime(YMD + HM, "%Y-%m-%d%H:%M")[0:5])
+                        reservedPost = ReservedPost()
+                        reservedPost.g_username = users.get_current_user()
+                        reservedPost.date = date
+                        reservedPost.url = self.request.get("article_url")
+                        reservedPost.put()
+                        message = "予約を追加しました"
                 elif typeOfAction == "cancel":
                     reservedPosts = ReservedPost.gql("WHERE url = :1", self.request.get("article_url"))
-                    for reservedPost in reservedPosts:
-                        reservedPost.delete()
-                    message = "予約をキャンセルしました"
+                    reservedPostsNumber = reservedPosts.count(2)
+                    if reservedPostsNumber == 2:
+                        raise Exception, ("予約データベースの中に同じ記事のための予約が2つあります"
+                                          + "(内部状態の異常)")
+                    elif reservedPostsNumber == 0:
+                        message = "そのような記事の予約は存在しません"
+                    else: # reservedPostsNumber == 1
+                        reservedPosts.get().delete()
+                        message = "予約をキャンセルしました"
 
                 result = hatenaOauthClient.make_request(url="http://d.hatena.ne.jp/%s/atom/draft"
                                     % userProperty.h_username, token=userProperty.accessToken,
