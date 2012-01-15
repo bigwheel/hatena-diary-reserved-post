@@ -3,7 +3,10 @@
   <title>list</title>
   <body>
 
+	{% if message %}
 	{{ message }}<br><br>
+	{% endif %}
+	
   	予約されてない記事<br>
     <form action="./" method="get">
       <input type="hidden" name="type_of_action" value="reserve">
