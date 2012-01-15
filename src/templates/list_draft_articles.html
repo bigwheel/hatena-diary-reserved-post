@@ -2,6 +2,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>list</title>
   <body>
+  	予約されてない記事
     <form action="./confirm" method="get">
     {% for title, atomLink, link in titleAndAtomLinkAndLinkSets %}
       <input type="radio" name="article" value="{{ atomLink }}">
