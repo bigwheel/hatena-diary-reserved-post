@@ -84,13 +84,23 @@ class MainPage(webapp.RequestHandler):
 
             titleAndAtomLinkAndLinkSets = self._palseDraftXml(result)
             
-            now = datetime.datetime.now() + datetime.timedelta(hours=9, minutes=10)
-            # 日本とGMTの時差+9時間分と、最初の表示が現在時刻では面倒なので一応10分足しておく
-            YMD = now.strftime(u"%Y-%m-%d")
-            H = now.strftime(u"%H:")
-            HM = H + ("%02d" % ((now.minute / 10) * 10))
+            reservedPostsForThisUser = ReservedPost.gql("WHERE g_username = :1",
+                                                        users.get_current_user())
             
-            template_values = {"titleAndAtomLinkAndLinkSets":titleAndAtomLinkAndLinkSets,
+            nonReservedArticles = []
+            reservedArticles = []
+            
+            for article in titleAndAtomLinkAndLinkSets:
+                for reservedPost in reservedPostsForThisUser:
+                    if article[1] == reservedPost.url:
+                        reservedArticles.append(article)
+                        break
+                else:
+                    nonReservedArticles.append(article)
+            
+            (YMD, HM) = self._getYMDandHM()
+            
+            template_values = {"titleAndAtomLinkAndLinkSets":reservedArticles,
                                "YMD":YMD, "HM":HM}
             render_template(self.response, "list_draft_articles.html", template_values)
         elif mode == "confirm":
@@ -107,6 +117,14 @@ class MainPage(webapp.RequestHandler):
             reservedPost.put()
             
             return render_template(self.response, "confirm.html", None)
+
+    def _getYMDandHM(self):
+        now = datetime.datetime.now() + datetime.timedelta(hours=9, minutes=10)
+        # 日本とGMTの時差+9時間分と、最初の表示が現在時刻では面倒なので一応10分足しておく
+        YMD = now.strftime(u"%Y-%m-%d")
+        H = now.strftime(u"%H:")
+        HM = H + ("%02d" % ((now.minute / 10) * 10))
+        return (YMD, HM)
     
     def _palseDraftXml(self, xml):
         dom = etree.fromstring(xml.content)
