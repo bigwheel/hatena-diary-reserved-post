@@ -68,12 +68,15 @@ class MainPage(webapp.RequestHandler):
             userProperty.accessToken = user_info["token"]
             userProperty.accessSecret = user_info["secret"]
             userProperty.put()
-            return self.redirect("%s/list" % self.request.host_url)
         else: # recordCount == 1
             userProperty = userPropertys.get() # 一つあればそれを引用して(下で)上書き(する)
 
+        # この時点でgoogleアカウントに紐付されてることと、
+        # hatenaへのoauth認証が済んでいること(つまりuserPropertyに正しく入力されてること)が保証されてる
+
         if mode == "": # トップページ
-            self.redirect(verify_url)
+            self.redirect("%s/list" % self.request.host_url)
+            return
         elif mode == "list":
             userPropertys = UserProperty.gql("WHERE g_username = :1", users.get_current_user())
             recordCount = userPropertys.count(3) # たぶん2でいいはずだが、自信がないので3にしておく
