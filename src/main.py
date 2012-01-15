@@ -98,8 +98,8 @@ class MainPage(webapp.RequestHandler):
                 
                 (YMD, HM) = self._getYMDandHM()
                 
-                template_values = {"titleAndAtomLinkAndLinkSets":reservedArticles,
-                                   "YMD":YMD, "HM":HM}
+                template_values = {"reservedArticles":reservedArticles,
+                                   "nonReservedArticles":nonReservedArticles, "YMD":YMD, "HM":HM}
                 return render_template(self.response, "list_draft_articles.html", template_values)
             elif mode == "confirm":
                 if not self.request.get("article"):
@@ -116,7 +116,7 @@ class MainPage(webapp.RequestHandler):
                 
                 return render_template(self.response, "confirm.html", None)
             else:
-                raise Exception, u"知らないモード(URL)です。"
+                raise Exception, u"知らないモード(URL)です。" + mode
                 
 
     def _getYMDandHM(self):
