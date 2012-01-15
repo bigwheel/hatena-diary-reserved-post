@@ -32,47 +32,48 @@ def render_template(response, template_filename, template_dict, debug=False):
 
 class MainPage(webapp.RequestHandler):
     def get(self, mode=""):
+        # まず最初にgoogleのログインを確認
         if not users.get_current_user():
             render_template(self.response, "require_google_login.html",
                             {"login_url":users.create_login_url(self.request.uri)})
             return
-        # TODO: 起動時に必ず出るエラーは、ここのreturn文が原因。文章を分解するべき？
 
         verify_url = "%s/verify" % self.request.host_url
-        
         hatenaOauthClient = oauth.HatenaClient("bLgBYjM0mxzK7Q==", "BUDLSz9wMZgjJgxiFihI5uogoPQ=",
                                                verify_url, scope = "read_public,write_public," +
                                                "read_private,write_private")
 
-        if mode == "": # トップページ
-            render_template(self.response, "require_hatena_oauth.html",
-                            {"auth_url":hatenaOauthClient.get_authorization_url()})
-        elif mode == "verify":
-            auth_token = self.request.get("oauth_token")
-            auth_verifier = self.request.get("oauth_verifier")
+        # 次にそのgoogleアカウントではてな日記のOauthがすでに認証されているか確認
+        userPropertys = UserProperty.gql("WHERE g_username = :1", users.get_current_user())
+        recordCount = userPropertys.count(3) # たぶん2でいいはずだが、自信がないので3にしておく
+        if recordCount > 1:
+            raise Exception, u"同じgoogleアカウントに紐付されたレコードが2つ以上あります。"
+            # TODO: これは当然ながら発生しうる。例えば複数のはてなアカウントを管理しているなど
+            # なので、やはり正式に運営するにはdjango+セッションIDである必要がある
+        elif recordCount == 0: # そのgoogleアカウントではてなOauthが認証されていないなら
+            auth_token = self.request.get("oauth_token", None)
+            auth_verifier = self.request.get("oauth_verifier", None)
+            # もしoauth認証を通った後でなければ
+            if auth_token == None or auth_verifier == None:
+                return render_template(self.response, "require_hatena_oauth.html",
+                                {"auth_url":hatenaOauthClient.get_authorization_url()})
             try:
                 user_info = hatenaOauthClient.get_user_info(auth_token, auth_verifier=auth_verifier)
             except:
-                return self.redirect(verify_url) # エラー用のページを用意して、そのURLに移動するべき
-            
-            # すでにデータベースにあるなら上書きで更新。なければ新たにレコードを追加
-            userPropertys = UserProperty.gql("WHERE g_username = :1", users.get_current_user())
-            recordCount = userPropertys.count(3) # たぶん2でいいはずだが、自信がないので3にしておく
-            if recordCount > 1:
-                raise Exception, u"同じgoogleアカウントに紐付されたレコードが2つ以上あります。"
-                # TODO: これは当然ながら発生しうる。例えば複数のはてなアカウントを管理しているなど
-                # なので、やはり正式に運営するにはdjango+セッションIDである必要がある
-            elif recordCount == 0: 
-                userProperty = UserProperty() # レコードが一つもない場合、新たに作成
-            else: # recordCount == 1
-                userProperty = userPropertys.get() # 一つあればそれを引用して(下で)上書き(する)
-            
+                return self.response.out.write("Oauthのtokenおよびverifilerが正しくありません。")
+
+            userProperty = UserProperty()
             userProperty.g_username = users.get_current_user()
             userProperty.h_username = user_info["id"]
             userProperty.accessToken = user_info["token"]
             userProperty.accessSecret = user_info["secret"]
             userProperty.put()
             return self.redirect("%s/list" % self.request.host_url)
+        else: # recordCount == 1
+            userProperty = userPropertys.get() # 一つあればそれを引用して(下で)上書き(する)
+
+        if mode == "": # トップページ
+            self.redirect(verify_url)
         elif mode == "list":
             userPropertys = UserProperty.gql("WHERE g_username = :1", users.get_current_user())
             recordCount = userPropertys.count(3) # たぶん2でいいはずだが、自信がないので3にしておく
