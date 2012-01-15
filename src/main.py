@@ -128,7 +128,8 @@ class MainPage(webapp.RequestHandler):
                 
                 (YMD, HM) = self._getYMDandHM()
                 
-                template_values = {"message":message, "reservedArticles":reservedArticles,
+                template_values = {"h_username":userProperty.h_username, "message":message,
+                                   "reservedArticles":reservedArticles,
                                    "nonReservedArticles":nonReservedArticles, "YMD":YMD, "HM":HM}
                 return render_template(self.response, "list_draft_articles.html", template_values)
             else:
