@@ -107,7 +107,7 @@ class MainPage(webapp.RequestHandler):
                         reservedPosts.get().delete()
                         message = "予約をキャンセルしました"
                 elif typeOfAction == "delete_token":
-                    userProperty.delete()
+                    self.deleteUserPropertyAndReservedPost(userProperty)
                     return self.redirect(self.request.host_url)
                 else:
                     raise Exception, "未知のtype_of_action get変数が指定されてます"
@@ -121,7 +121,7 @@ class MainPage(webapp.RequestHandler):
                 except:
                     if result.content == "oauth_problem=token_revoked" or\
                                     result.content == "oauth_problem=token_rejected":
-                        userProperty.delete()
+                        self.deleteUserPropertyAndReservedPost(userProperty)
                         return render_template(self.response, "token_error.html",
                                                {"message":result.content})
                     return render_template(self.response, "error_happened.html",
@@ -150,7 +150,11 @@ class MainPage(webapp.RequestHandler):
                 return render_template(self.response, "list_draft_articles.html", template_values)
             else:
                 raise Exception, u"知らないモード(URL)です。" + mode
-                
+
+    def deleteUserPropertyAndReservedPost(self, userProperty):
+        for reservedPost in ReservedPost.gql("WHERE g_username = :1", users.get_current_user()):
+            reservedPost.delete()
+        userProperty.delete()
 
     def _getYMDandHM(self):
         now = datetime.datetime.now() + datetime.timedelta(hours=9, minutes=10)
