@@ -90,6 +90,9 @@ class MainPage(webapp.RequestHandler):
                     reservedPost.put()
                     message = "予約を追加しました"
                 elif typeOfAction == "cancel":
+                    reservedPosts = ReservedPost.gql("WHERE url = :1", self.request.get("article"))
+                    for reservedPost in reservedPosts:
+                        reservedPost.delete()
                     message = "予約をキャンセルしました"
 
                 result = hatenaOauthClient.make_request(url="http://d.hatena.ne.jp/%s/atom/draft"

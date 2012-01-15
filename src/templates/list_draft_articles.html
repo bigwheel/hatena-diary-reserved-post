@@ -18,10 +18,10 @@
 
   	予約されている記事<br>
     {% for title, atomLink, link, date in reservedArticles %}
-      <input type="hidden" name="type_of_action" value="cancel">
 	  <form action="./" method="get">
       	<a href="{{ link }}">{{ title }}</a>{{ date }}
       	<input type="submit" value="この記事の予約を取り消す">
+	    <input type="hidden" name="type_of_action" value="cancel">
       	<input type="hidden" name="article" value="{{ atomLink }}">
       </form>
     {% endfor %}
