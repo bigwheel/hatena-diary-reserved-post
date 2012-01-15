@@ -78,41 +78,21 @@ class MainPage(webapp.RequestHandler):
             self.redirect("%s/list" % self.request.host_url)
             return
         elif mode == "list":
-            userPropertys = UserProperty.gql("WHERE g_username = :1", users.get_current_user())
-            recordCount = userPropertys.count(3) # たぶん2でいいはずだが、自信がないので3にしておく
-            if recordCount == 0:
-                self.redirect(verify_url)
-            elif recordCount > 1:
-                raise Exception, u"同じgoogleアカウントに紐付されたレコードが2つ以上あります。"
-                # TODO: これは当然ながら発生しうる。例えば複数のはてなアカウントを管理しているなど
-                # なので、やはり正式に運営するにはdjango+セッションIDである必要がある
-            else: # recordCount == 1
-                userProperty = userPropertys.get()
-                url = "http://d.hatena.ne.jp/%s/atom/draft" % userProperty.h_username
-                result = hatenaOauthClient.make_request(url=url, token=userProperty.accessToken,
-                                             secret=userProperty.accessSecret, method=urlfetch.GET)
-                
-                dom = etree.fromstring(result.content)
-                xmlns = "http://www.w3.org/2005/Atom" # XMLの名前空間
-                entries = dom.findall("./{%s}entry" % xmlns)
-                titleAndAtomLinkSetNodes = map((lambda entry:
-                                                (entry.find("./{%s}title" % xmlns),
-                                                 entry.find("./{%s}link" % xmlns))), entries)
-                titleAndAtomLinkSets = map((lambda node: (node[0].text, node[1].get("href"))),
-                                       titleAndAtomLinkSetNodes)
-                
-                titleAndAtomLinkAndLinkSets = map((lambda tAALSet: (tAALSet[0], tAALSet[1],
-                    re.sub("/atom/draft/", "/draft?epoch=", tAALSet[1]))), titleAndAtomLinkSets)
-                
-                now = datetime.datetime.now() + datetime.timedelta(hours=9, minutes=10)
-                # 日本とGMTの時差+9時間分と、最初の表示が現在時刻では面倒なので一応10分足しておく
-                YMD = now.strftime(u"%Y-%m-%d")
-                H = now.strftime(u"%H:")
-                HM = H + ("%02d" % ((now.minute / 10) * 10))
-                
-                template_values = {"titleAndAtomLinkAndLinkSets":titleAndAtomLinkAndLinkSets,
-                                   "YMD":YMD, "HM":HM}
-                render_template(self.response, "list_draft_articles.html", template_values)
+            result = hatenaOauthClient.make_request(url="http://d.hatena.ne.jp/%s/atom/draft"
+                                % userProperty.h_username, token=userProperty.accessToken,
+                                secret=userProperty.accessSecret, method=urlfetch.GET)
+
+            titleAndAtomLinkAndLinkSets = self._palseDraftXml(result)
+            
+            now = datetime.datetime.now() + datetime.timedelta(hours=9, minutes=10)
+            # 日本とGMTの時差+9時間分と、最初の表示が現在時刻では面倒なので一応10分足しておく
+            YMD = now.strftime(u"%Y-%m-%d")
+            H = now.strftime(u"%H:")
+            HM = H + ("%02d" % ((now.minute / 10) * 10))
+            
+            template_values = {"titleAndAtomLinkAndLinkSets":titleAndAtomLinkAndLinkSets,
+                               "YMD":YMD, "HM":HM}
+            render_template(self.response, "list_draft_articles.html", template_values)
         elif mode == "confirm":
             if not self.request.get("article"):
                 return self.redirect("%s/list" % self.request.host_url)
@@ -127,6 +107,20 @@ class MainPage(webapp.RequestHandler):
             reservedPost.put()
             
             return render_template(self.response, "confirm.html", None)
+    
+    def _palseDraftXml(self, xml):
+        dom = etree.fromstring(xml.content)
+        xmlns = "http://www.w3.org/2005/Atom" # XMLの名前空間
+        entries = dom.findall("./{%s}entry" % xmlns)
+        titleAndAtomLinkSetNodes = map((lambda entry:
+                                        (entry.find("./{%s}title" % xmlns),
+                                         entry.find("./{%s}link" % xmlns))), entries)
+        titleAndAtomLinkSets = map((lambda node: (node[0].text, node[1].get("href"))),
+                               titleAndAtomLinkSetNodes)
+        
+        return map((lambda tAALSet: (tAALSet[0], tAALSet[1],
+            re.sub("/atom/draft/", "/draft?epoch=", tAALSet[1]))), titleAndAtomLinkSets)
+
 
 application = webapp.WSGIApplication([('/(.*)', MainPage)], debug=True)
 
