@@ -11,7 +11,7 @@
     <form action="./" method="get">
       <input type="hidden" name="type_of_action" value="reserve">
       {% for title, atomLink, link in nonReservedArticles %}
-        <input type="radio" name="article" value="{{ atomLink }}">
+        <input type="radio" name="article_url" value="{{ atomLink }}">
         <a href="{{ link }}">{{ title }}</a><br>
       {% endfor %}
       <label>年月日：<input type="date" name="date" min="{{ YMD }}" value="{{ YMD }}"></label>
@@ -25,7 +25,7 @@
       	<a href="{{ link }}">{{ title }}</a>{{ date }}
       	<input type="submit" value="この記事の予約を取り消す">
 	    <input type="hidden" name="type_of_action" value="cancel">
-      	<input type="hidden" name="article" value="{{ atomLink }}">
+      	<input type="hidden" name="article_url" value="{{ atomLink }}">
       </form>
     {% endfor %}
     </form>

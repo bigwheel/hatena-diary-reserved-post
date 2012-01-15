@@ -86,11 +86,11 @@ class MainPage(webapp.RequestHandler):
                     reservedPost = ReservedPost()
                     reservedPost.g_username = users.get_current_user()
                     reservedPost.date = date
-                    reservedPost.url = self.request.get("article")
+                    reservedPost.url = self.request.get("article_url")
                     reservedPost.put()
                     message = "予約を追加しました"
                 elif typeOfAction == "cancel":
-                    reservedPosts = ReservedPost.gql("WHERE url = :1", self.request.get("article"))
+                    reservedPosts = ReservedPost.gql("WHERE url = :1", self.request.get("article_url"))
                     for reservedPost in reservedPosts:
                         reservedPost.delete()
                     message = "予約をキャンセルしました"
