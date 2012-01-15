@@ -76,6 +76,22 @@ class MainPage(webapp.RequestHandler):
             # hatenaへのoauth認証が済んでいること(つまりuserPropertyに正しく入力されてること)が保証されてる
 
             if mode == "":
+                message = ""
+                typeOfAction = self.request.get("type_of_action")
+                if typeOfAction == "reserve":
+                    YMD = self.request.get("date")
+                    HM = self.request.get("time")
+                    from time import strptime
+                    date = datetime.datetime(*strptime(YMD + HM, "%Y-%m-%d%H:%M")[0:5])
+                    reservedPost = ReservedPost()
+                    reservedPost.g_username = users.get_current_user()
+                    reservedPost.date = date
+                    reservedPost.url = self.request.get("article")
+                    reservedPost.put()
+                    message = "予約を追加しました"
+                elif typeOfAction == "cancel":
+                    message = "予約をキャンセルしました"
+
                 result = hatenaOauthClient.make_request(url="http://d.hatena.ne.jp/%s/atom/draft"
                                     % userProperty.h_username, token=userProperty.accessToken,
                                     secret=userProperty.accessSecret, method=urlfetch.GET)
@@ -99,23 +115,9 @@ class MainPage(webapp.RequestHandler):
                 
                 (YMD, HM) = self._getYMDandHM()
                 
-                template_values = {"reservedArticles":reservedArticles,
+                template_values = {"message":message, "reservedArticles":reservedArticles,
                                    "nonReservedArticles":nonReservedArticles, "YMD":YMD, "HM":HM}
                 return render_template(self.response, "list_draft_articles.html", template_values)
-            elif mode == "confirm":
-                if not self.request.get("article"):
-                    return self.redirect("%s/list" % self.request.host_url)
-                YMD = self.request.get("date")
-                HM = self.request.get("time")
-                from time import strptime
-                date = datetime.datetime(*strptime(YMD + HM, "%Y-%m-%d%H:%M")[0:5])
-                reservedPost = ReservedPost()
-                reservedPost.g_username = users.get_current_user()
-                reservedPost.date = date
-                reservedPost.url = self.request.get("article")
-                reservedPost.put()
-                
-                return render_template(self.response, "confirm.html", None)
             else:
                 raise Exception, u"知らないモード(URL)です。" + mode
                 
