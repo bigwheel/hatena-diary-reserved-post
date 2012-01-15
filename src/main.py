@@ -133,7 +133,7 @@ class MainPage(webapp.RequestHandler):
                             reservedArticles.append((article[0], article[1], article[2],
                                                      reservedPost.date))
                             break
-                    else:
+                    else: # このelseはifに対応したelseではなく同インデントのforに対応するelseであることに注意
                         nonReservedArticles.append(article)
                 
                 (YMD, HM) = self._getYMDandHM()
