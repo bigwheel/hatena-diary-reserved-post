@@ -40,11 +40,9 @@ class ListView(webapp.RequestHandler):
                             {"login_url":users.create_login_url(self.request.uri)})
             return
 
-        verify_url = "%s/verify" % self.request.host_url
         hatenaOauthClient = oauth.HatenaClient(consumer_key_and_secret.getConsumerKey(),
-                                               consumer_key_and_secret.getConsumerSecret(),
-                                               verify_url, scope = "read_public,write_public," +
-                                               "read_private,write_private")
+                consumer_key_and_secret.getConsumerSecret(), self.request.uri,
+                scope = "read_public,write_public,read_private,write_private")
 
         # 次にそのgoogleアカウントではてな日記のOauthがすでに認証されているか確認
         userPropertys = UserProperty.gql("WHERE g_username = :1", users.get_current_user())
@@ -181,7 +179,7 @@ class ListView(webapp.RequestHandler):
             re.sub("/atom/draft/", "/draft?epoch=", tAALSet[1]))), titleAndAtomLinkSets)
 
 
-application = webapp.WSGIApplication([('/(.*)', ListView)], debug=True)
+application = webapp.WSGIApplication([('/list/(.*)', ListView)], debug=True)
 
 
 def main():
