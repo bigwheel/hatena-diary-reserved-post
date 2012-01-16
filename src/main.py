@@ -69,7 +69,7 @@ class ListView(webapp.RequestHandler):
             userProperty.accessToken = user_info["token"]
             userProperty.accessSecret = user_info["secret"]
             userProperty.put()
-            return self.redirect(self.request.host_url)
+            return self.redirect(self.request.uri)
         else: # recordCount == 1
             userProperty = userPropertys.get() # 一つあればそれを引用して(下で)上書き(する)
 
