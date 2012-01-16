@@ -162,8 +162,8 @@ class MainPage(webapp.RequestHandler):
     def _getYMDandHM(self):
         now = datetime.datetime.now() + datetime.timedelta(hours=9, minutes=10)
         # 日本とGMTの時差+9時間分と、最初の表示が現在時刻では面倒なので一応10分足しておく
-        YMD = now.strftime(u"%Y-%m-%d")
-        H = now.strftime(u"%H:")
+        YMD = now.strftime("%Y-%m-%d")
+        H = now.strftime("%H:")
         HM = H + ("%02d" % ((now.minute / 10) * 10))
         return (YMD, HM)
     
