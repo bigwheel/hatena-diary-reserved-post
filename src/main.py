@@ -32,7 +32,7 @@ def render_template(response, template_filename, template_dict, debug=False):
     path = os.path.join(os.path.dirname(__file__), "templates/" + template_filename)
     response.out.write(template.render(path, template_dict, debug))
 
-class MainPage(webapp.RequestHandler):
+class ListView(webapp.RequestHandler):
     def get(self, mode=""):
         # まず最初にgoogleのログインを確認
         if not users.get_current_user():
@@ -181,7 +181,7 @@ class MainPage(webapp.RequestHandler):
             re.sub("/atom/draft/", "/draft?epoch=", tAALSet[1]))), titleAndAtomLinkSets)
 
 
-application = webapp.WSGIApplication([('/(.*)', MainPage)], debug=True)
+application = webapp.WSGIApplication([('/(.*)', ListView)], debug=True)
 
 
 def main():

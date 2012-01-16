@@ -8,9 +8,14 @@ handlers:
   script: post.py
   login: admin
 
+# favicon用の設定
 - url: /favicon.ico
   static_files: static/images/favicon.ico
   upload: static/images/favicon.ico
-  
-- url: /.*
+
+- url: /
+  static_files: static/top_page.html
+  upload: static/top_page.html
+
+- url: /list/.*
   script: main.py
