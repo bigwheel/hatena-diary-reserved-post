@@ -1,6 +1,7 @@
-#Mon Jan 16 13:08:30 JST 2012
+#Mon Jan 16 20:14:57 JST 2012
 eclipse.preferences.version=1
 encoding//src/appengine_config.py=utf-8
 encoding//src/main.py=utf-8
 encoding//src/password/consumer_key_and_secret.py=utf-8
+encoding//src/password/template_of_consumer_key_and_secret.py=utf-8
 encoding//src/post.py=utf-8
