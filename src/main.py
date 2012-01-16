@@ -15,7 +15,7 @@ import xml.etree.ElementTree as etree
 
 import oauth
 
-from password import consumer_key_and_secret 
+from password import consumer_key_and_secret
 
 class UserProperty(db.Model):
     g_username = db.UserProperty()
