@@ -28,7 +28,7 @@ class MainPage(webapp.RequestHandler):
 
         queuedTask = ReservedPost.gql("WHERE date <= DATETIME('%s')" % 
                              (datetime.datetime.now() + datetime.timedelta(hours=9))
-                             .strftime(u"%Y-%m-%d %H:%M:%S"))
+                             .strftime("%Y-%m-%d %H:%M:%S"))
         for reservedPost in queuedTask:
             userProperty = UserProperty.gql("WHERE g_username = :1", reservedPost.g_username).get()
             result = hatenaOauthClient.make_request(url=reservedPost.url, token=userProperty.accessToken,
