@@ -11,11 +11,13 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 import oauth
 
 from main import ReservedPost, UserProperty
+from password import consumer_key_and_secret
 
 class MainPage(webapp.RequestHandler):
     def get(self, mode=""):
         try:
-            hatenaOauthClient = oauth.HatenaClient("bLgBYjM0mxzK7Q==", "BUDLSz9wMZgjJgxiFihI5uogoPQ=",
+            hatenaOauthClient = oauth.HatenaClient(consumer_key_and_secret.getConsumerKey(),
+                                                   consumer_key_and_secret.getConsumerSecret(),
                                                    None, scope = "read_public,write_public," +
                                                    "read_private,write_private")
         except:
