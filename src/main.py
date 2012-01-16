@@ -15,6 +15,8 @@ import xml.etree.ElementTree as etree
 
 import oauth
 
+from password import consumer_key_and_secret 
+
 class UserProperty(db.Model):
     g_username = db.UserProperty()
     h_username = db.StringProperty()
@@ -39,7 +41,8 @@ class MainPage(webapp.RequestHandler):
             return
 
         verify_url = "%s/verify" % self.request.host_url
-        hatenaOauthClient = oauth.HatenaClient("bLgBYjM0mxzK7Q==", "BUDLSz9wMZgjJgxiFihI5uogoPQ=",
+        hatenaOauthClient = oauth.HatenaClient(consumer_key_and_secret.getConsumerKey(),
+                                               consumer_key_and_secret.getConsumerSecret(),
                                                verify_url, scope = "read_public,write_public," +
                                                "read_private,write_private")
 
